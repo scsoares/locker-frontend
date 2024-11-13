@@ -208,7 +208,7 @@ export function Pending() {
   ));
 
   return (
-    <Box bg="myPurple.7" h="60vh" bd="1px solid myPurple.1" style={{ borderRadius: 40 }}>
+    <Box bg="transparent" h="60vh" bd="1px solid myPurple.1" style={{ borderRadius: 40 }}>
       <Center>
         <h2>Reservas pendientes</h2>
       </Center>

@@ -6,3 +6,10 @@
   font-weight: 600;
   font-style: normal;
 }
+
+Input {
+  font-family: 'Quicksand', serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
