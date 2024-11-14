@@ -1,54 +1,60 @@
 ﻿import { IconSearch } from '@tabler/icons-react';
 import { Box, Button, Center, Flex, Input, ScrollArea, Stack, Text, Title } from '@mantine/core';
 
-import './Lockers.module.css';
+import './Box.module.css';
 
 import { useEffect, useState } from 'react';
 import instance from '@/services/api';
-import { LockersContext } from './context';
+import { BoxesContext } from './context';
 
-export interface Locker {
+export interface Box {
   id: string;
   description: string;
-  number: number;
-  location: string;
+  imgUrl: string;
+  locker_id: string;
 }
 
-const mockLockers = [
+const mockBoxes = [
   {
-    id: '0-01',
-    description: 'A locker',
-    number: 2,
-    location: 'Aula 106',
+    id: 'C01',
+    description: 'A Box',
+    imgUrl: 'Aula 106',
+    locker_id: '0-01',
   },
   {
-    id: '0-02',
-    description: 'A locker',
-    number: 2,
-    location: 'Aula 106',
+    id: 'C02',
+    description: 'A Box',
+    imgUrl: 'Aula 106',
+    locker_id: '0-01',
   },
   {
-    id: '0-03',
-    description: 'A locker',
-    number: 2,
-    location: 'Aula 106',
+    id: 'C03',
+    description: 'A Box',
+    imgUrl: 'Aula 106',
+    locker_id: '0-02',
+  },
+  {
+    id: 'C04',
+    description: 'A Box',
+    imgUrl: 'Aula 106',
+    locker_id: '0-02',
   },
 ];
 
-export default function Lockers() {
-  const [lockers, setLockers] = useState<Locker[]>([]);
+export default function Boxes() {
+  const [boxes, setBoxes] = useState<Box[]>([]);
 
   useEffect((): any => {
     try {
-      let lockers: any;
+      let boxes: any;
 
-      instance.get('/lockers').then((response) => {
-        lockers = response.data;
+      instance.get('/boxes').then((response) => {
+        boxes = response.data;
       });
 
-      setLockers(mockLockers);
+      setBoxes(mockBoxes);
 
-      return lockers;
+      return boxes;
     } catch (err: any) {
       console.log(err.message);
       return null;
@@ -56,7 +62,7 @@ export default function Lockers() {
   }, []);
 
   return (
-    <LockersContext.Provider value={lockers}>
+    <BoxesContext.Provider value={boxes}>
       <Box
         bg="myPurple.4"
         px="1vw"
@@ -68,10 +74,10 @@ export default function Lockers() {
         <Stack my="4vh" gap="xl">
           <Center>
             <Title fw="600" c="white">
-              Armarios
+              Casillas
             </Title>
           </Center>
-          {/* Search input for lockers */}
+          {/* Search input for Boxes */}
           <Center>
             <Input
               w="20vw"
@@ -83,21 +89,21 @@ export default function Lockers() {
         </Stack>
         <ScrollArea p="lg" m="md" h="62vh" scrollbarSize={16}>
           <Flex direction="column" gap="sm">
-            {lockers.map((locker) => {
+            {boxes.map((box) => {
               return (
                 <Box h="auto" bg="myPurple.6" style={{ borderRadius: 20 }} p="sm">
                   <Flex direction="column" gap="lg" p="sm">
                     <Flex gap="10vw" justify="center" align="center">
                       <Flex direction="column" gap="1vh" justify="center">
                         <Title size="xl" c="white">
-                          Armario {locker.id}
+                          Armario {box.id}
                         </Title>
                         <Flex gap="md" justify="flex-start">
                           <Flex gap={5}>
                             <Text c="white" fw={700}>
                               Casilla:
                             </Text>{' '}
-                            <Text c="white">{locker.location}</Text>
+                            <Text c="white">{box.locker_id}</Text>
                           </Flex>
                         </Flex>
                       </Flex>
@@ -149,6 +155,6 @@ export default function Lockers() {
           </Flex>
         </ScrollArea>
       </Box>
-    </LockersContext.Provider>
+    </BoxesContext.Provider>
   );
 }

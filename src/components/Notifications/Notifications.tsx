@@ -4,9 +4,11 @@ import './Notifications.module.css';
 
 import { useEffect, useState } from 'react';
 import instance from '@/services/api';
+import { useBoxesContext } from '../Boxes/context';
+import { useLockersContext } from '../Lockers/context';
 
 // this interface defines the value types of Notification object for later usage in the createReservations function
-interface Notification {
+export interface Notification {
   type: string;
   box: string;
   location: string;
@@ -15,66 +17,85 @@ interface Notification {
 
 // This interface defines the value types of Booking object for generating the notifications in the createNotifications function
 //booked objects list in the array (preguntar a miguel)
-interface Booking {
+export interface Booking {
   id: string;
   description: string;
   checkInDate: EpochTimeStamp;
   checkOutDate: EpochTimeStamp;
   state: string;
   teacherColumn: number;
+  object_id: string;
 }
 
 // This is a mock notifications array for testing
-const mockNotifications: Notification[] = [
+const mockBookings: Booking[] = [
   {
-    type: 'recogida',
-    box: 'C02A03',
-    location: 'Aula 106',
-    hour: '16:00',
+    id: '1',
+    description: 'A booking',
+    checkInDate: 4645764574,
+    checkOutDate: 4654677567,
+    state: 'devuelto',
+    teacherColumn: 2,
+    object_id: '0-01',
   },
   {
-    type: 'devolución',
-    box: 'C02A03',
-    location: 'Aula 106',
-    hour: '18:00',
+    id: '1',
+    description: 'A booking',
+    checkInDate: 4645764574,
+    checkOutDate: 4654677567,
+    state: 'devuelto',
+    teacherColumn: 2,
+    object_id: '0-01',
   },
   {
-    type: 'recogida',
-    box: 'C02A03',
-    location: 'Aula 106',
-    hour: '16:00',
+    id: '1',
+    description: 'A booking',
+    checkInDate: 4645764574,
+    checkOutDate: 4654677567,
+    state: 'devuelto',
+    teacherColumn: 2,
+    object_id: '0-01',
   },
   {
-    type: 'devolución',
-    box: 'C02A03',
-    location: 'Aula 106',
-    hour: '18:00',
+    id: '1',
+    description: 'A booking',
+    checkInDate: 4645764574,
+    checkOutDate: 4654677567,
+    state: 'devuelto',
+    teacherColumn: 2,
+    object_id: '0-01',
   },
   {
-    type: 'recogida',
-    box: 'C02A03',
-    location: 'Aula 106',
-    hour: '16:00',
+    id: '1',
+    description: 'A booking',
+    checkInDate: 4645764574,
+    checkOutDate: 4654677567,
+    state: 'devuelto',
+    teacherColumn: 2,
+    object_id: '0-01',
   },
   {
-    type: 'devolución',
-    box: 'C02A03',
-    location: 'Aula 106',
-    hour: '18:00',
+    id: '1',
+    description: 'A booking',
+    checkInDate: 4645764574,
+    checkOutDate: 4654677567,
+    state: 'devuelto',
+    teacherColumn: 2,
+    object_id: '0-01',
   },
 ];
 
 export function Notifications() {
-  function createNotifications(bookings: any): any {
-    let inNotifications: Notification[];
-    let outNotifications: Notification[];
-    let notifications: Notification[] = [];
+  const [notifications] = useState<Notification[]>([]);
+  const lockersProvided = useLockersContext();
+  const boxesProvided = useBoxesContext();
 
-    var now = Date.now();
+  function createNotifications(bookings: any): any {
+    const now = Date.now();
 
     bookings.forEach((b: any) =>
       b.checkInDate - now <= 7200
-        ? notifications.push({ type: '', box: '', location: '', hour: b.checkInDate })
+        ? notifications.push({ type: 'devolución', box: '', location: '', hour: b.checkInDate })
         : null
     );
 
@@ -107,7 +128,7 @@ export function Notifications() {
 
       <ScrollArea p="lg" m="md" h="50vh" scrollbarSize={16}>
         <Flex direction="column" gap="sm">
-          {mockNotifications.map((n) => {
+          {notifications.map((n) => {
             return (
               <Box
                 h="auto"
