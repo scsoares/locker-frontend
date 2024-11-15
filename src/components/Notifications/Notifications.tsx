@@ -3,172 +3,277 @@
 import './Notifications.module.css';
 
 import { useEffect, useState } from 'react';
+import { useMediaQuery } from '@mantine/hooks';
 import instance from '@/services/api';
-import { useBoxesContext } from '../Boxes/context';
-import { useLockersContext } from '../Lockers/context';
+import { Booking } from '@/types/types';
 
-// this interface defines the value types of Notification object for later usage in the createReservations function
-export interface Notification {
-  type: string;
-  box: string;
-  location: string;
-  hour: string;
+//this interface defines the values types of Booking object for later usage in the component
+
+function sortBookings(bookings: Booking[]): Booking[] {
+  const now = Date.now();
+
+  //logic to sort the bookings by the closest notification time
+  return bookings.sort((a, b) => {
+    const aCheckInTime = new Date(a.checkInTime).getTime();
+    const aCheckOutTime = new Date(a.checkOutTime).getTime();
+    const bCheckInTime = new Date(b.checkInTime).getTime();
+    const bCheckOutTime = new Date(b.checkOutTime).getTime();
+
+    const aTimeDifference = Math.min(Math.abs(aCheckInTime - now), Math.abs(aCheckOutTime - now));
+    const bTimeDifference = Math.min(Math.abs(bCheckInTime - now), Math.abs(bCheckOutTime - now));
+
+    return aTimeDifference - bTimeDifference;
+  });
 }
 
-// This interface defines the value types of Booking object for generating the notifications in the createNotifications function
-//booked objects list in the array (preguntar a miguel)
-export interface Booking {
-  id: string;
-  description: string;
-  checkInDate: EpochTimeStamp;
-  checkOutDate: EpochTimeStamp;
-  state: string;
-  teacherColumn: number;
-  object_id: string;
-}
+function formatTime(timeString: string): string {
+  // function for formatting the timestamp to display only the hours and minutes in the notification
+  const date = new Date(timeString);
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
 
-// This is a mock notifications array for testing
-const mockBookings: Booking[] = [
-  {
-    id: '1',
-    description: 'A booking',
-    checkInDate: 4645764574,
-    checkOutDate: 4654677567,
-    state: 'devuelto',
-    teacherColumn: 2,
-    object_id: '0-01',
-  },
-  {
-    id: '1',
-    description: 'A booking',
-    checkInDate: 4645764574,
-    checkOutDate: 4654677567,
-    state: 'devuelto',
-    teacherColumn: 2,
-    object_id: '0-01',
-  },
-  {
-    id: '1',
-    description: 'A booking',
-    checkInDate: 4645764574,
-    checkOutDate: 4654677567,
-    state: 'devuelto',
-    teacherColumn: 2,
-    object_id: '0-01',
-  },
-  {
-    id: '1',
-    description: 'A booking',
-    checkInDate: 4645764574,
-    checkOutDate: 4654677567,
-    state: 'devuelto',
-    teacherColumn: 2,
-    object_id: '0-01',
-  },
-  {
-    id: '1',
-    description: 'A booking',
-    checkInDate: 4645764574,
-    checkOutDate: 4654677567,
-    state: 'devuelto',
-    teacherColumn: 2,
-    object_id: '0-01',
-  },
-  {
-    id: '1',
-    description: 'A booking',
-    checkInDate: 4645764574,
-    checkOutDate: 4654677567,
-    state: 'devuelto',
-    teacherColumn: 2,
-    object_id: '0-01',
-  },
-];
+  return `${hours}:${minutes}`;
+}
 
 export function Notifications() {
-  const [notifications] = useState<Notification[]>([]);
-  const lockersProvided = useLockersContext();
-  const boxesProvided = useBoxesContext();
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
-  function createNotifications(bookings: any): any {
-    const now = Date.now();
+  const matches = useMediaQuery('(min-width: 85em)');
+  const matches2 = useMediaQuery('(max-width: 93em)');
 
-    bookings.forEach((b: any) =>
-      b.checkInDate - now <= 7200
-        ? notifications.push({ type: 'devolución', box: '', location: '', hour: b.checkInDate })
-        : null
-    );
+  // useEffect(() => {
+  //   //it fetches the filteredbookings using the axios instance (provisionally this will be commented and we will use the hardcoded filteredNotifications.json in the assets folder )
+  //   // the response.data will be called reservations for the sake of distinction
+  //   instance
+  //     .get('../../assets/filteredBookings.json')
+  //     .then((response) => {
+  //       const reservations: Booking[] = response.data;
+  //       const sortedReservations = sortBookings(reservations);
+  //       console.log(sortedReservations);
+  //       setBookings(sortedReservations); //sets the sorted reservations in state
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching filtered bookings:', error);
+  //     });
+  // }, []);
 
-    return bookings ? notifications : null;
-  }
-
-  // useEffect for fetching the reservation data and creating the notifications based on current date and time. This piece of code, as of now, needs some reviewing and refactoring
-  //and expects the population of the reservations table
-  useEffect((): any => {
-    try {
-      let reservations: any;
-
-      instance.get('/bookings').then((response) => {
-        reservations = response.data;
+  useEffect(() => {
+    //for testing purposes, let's use fetch to retrieve filtered bookings in json file
+    fetch('/assets/filteredBookings.json')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const reservations: Booking[] = data;
+        const sortedReservations = sortBookings(reservations);
+        setBookings(sortedReservations); //sets the sorted reservations in state
+      })
+      .catch((error) => {
+        console.error('Error fetching filtered bookings:', error);
       });
-
-      return createNotifications(reservations);
-    } catch (err: any) {
-      console.log(err.message);
-      return null;
-    }
   }, []);
 
   return (
-    <Box bg="transparent" h="60vh" bd="1px solid myPurple.1" style={{ borderRadius: 40 }}>
-      <Center>
-        <h2>Notificaciones</h2>
-      </Center>
-      <Divider size="xs" color="myPurple.1" />
+    <>
+      {matches ? (
+        matches2 ? (
+          //component for small desktops - max 1440
+          <Box bg="transparent" h="60vh" bd="1px solid myPurple.1" style={{ borderRadius: 40 }}>
+            <Center>
+              <h2>Notificaciones</h2>
+            </Center>
+            <Divider size="xs" color="myPurple.1" />
 
-      <ScrollArea p="lg" m="md" h="50vh" scrollbarSize={16}>
-        <Flex direction="column" gap="sm">
-          {notifications.map((n) => {
-            return (
-              <Box
-                h="auto"
-                bg={n.type === 'recogida' ? 'rgba(34, 139, 230, .20)' : 'rgba(231, 175, 46, .20)'}
-                style={{ borderRadius: 20 }}
-                p="md"
-                bd={`1px solid ${n.type === 'recogida' ? 'rgba(34, 139, 230)' : 'rgba(231, 175, 46)'}`}
-              >
-                <Flex gap="xl" justify="center" align="center">
-                  <Flex gap="sm" direction="column" justify="center">
-                    <Text fw={700} c="white">
-                      Recordatorio de {n.type}:
-                    </Text>
-                    <Flex gap="md" justify="flex-start">
-                      <Flex gap={5}>
-                        <Text c="white" fw={700}>
-                          Casilla:
-                        </Text>{' '}
-                        <Text c="white">{n.box}</Text>
+            <ScrollArea p="lg" m="md" h="50vh" scrollbarSize={16}>
+              <Flex direction="column" gap="sm">
+                {bookings.map((sb) => {
+                  const lockerName = sb.Object.Box.Locker.name;
+                  const boxName = sb.Object.Box.name;
+                  const lockerLocation = sb.Object.Box.Locker.location;
+
+                  return (
+                    <Box
+                      h="auto"
+                      bg={
+                        sb.type === 'recogida'
+                          ? 'rgba(34, 139, 230, .20)'
+                          : 'rgba(231, 175, 46, .20)'
+                      }
+                      style={{ borderRadius: 20 }}
+                      p="md"
+                      bd={`1px solid ${sb.type === 'recogida' ? 'rgba(34, 139, 230)' : 'rgba(231, 175, 46)'}`}
+                    >
+                      <Flex gap="xl" justify="center" align="center">
+                        <Flex gap="sm" direction="column" justify="center">
+                          <Text fw={700} c="white">
+                            Recordatorio de {sb.type}:
+                          </Text>
+                          <Flex gap="md" justify="flex-start">
+                            <Flex gap={5}>
+                              <Text c="white" fw={700}>
+                                Casilla:
+                              </Text>{' '}
+                              <Text c="white">
+                                {lockerName}
+                                {boxName}
+                              </Text>
+                            </Flex>
+                            <Flex gap={5}>
+                              <Text c="white" fw={700}>
+                                Ubicación:
+                              </Text>{' '}
+                              <Text c="white">{lockerLocation}</Text>
+                            </Flex>
+                          </Flex>
+                        </Flex>
+                        <Title
+                          fw={600}
+                          c={sb.type === 'recogida' ? 'rgba(34, 139, 230)' : 'rgba(231, 175, 46)'}
+                        >
+                          {sb.type === 'recogida'
+                            ? formatTime(sb.checkOutTime)
+                            : formatTime(sb.checkOutTime)}
+                        </Title>
                       </Flex>
-                      <Flex gap={5}>
-                        <Text c="white" fw={700}>
-                          Ubicación:
-                        </Text>{' '}
-                        <Text c="white">{n.class}</Text>
+                    </Box>
+                  );
+                })}
+              </Flex>
+            </ScrollArea>
+          </Box>
+        ) : (
+          //component for big desktops - min 1440
+          <Box bg="transparent" h="60vh" bd="1px solid myPurple.1" style={{ borderRadius: 40 }}>
+            <Center>
+              <h2>Notificaciones</h2>
+            </Center>
+            <Divider size="xs" color="myPurple.1" />
+
+            <ScrollArea p="lg" m="md" h="50vh" scrollbarSize={16}>
+              <Flex direction="column" gap="sm">
+                {bookings.map((sb) => {
+                  const lockerName = sb.Object.Box.Locker.name;
+                  const boxName = sb.Object.Box.name;
+                  const lockerLocation = sb.Object.Box.Locker.location;
+
+                  return (
+                    <Box
+                      h="auto"
+                      bg={
+                        sb.type === 'recogida'
+                          ? 'rgba(34, 139, 230, .20)'
+                          : 'rgba(231, 175, 46, .20)'
+                      }
+                      style={{ borderRadius: 20 }}
+                      p="md"
+                      bd={`1px solid ${sb.type === 'recogida' ? 'rgba(34, 139, 230)' : 'rgba(231, 175, 46)'}`}
+                    >
+                      <Flex gap="xl" justify="center" align="center">
+                        <Flex gap="sm" direction="column" justify="center">
+                          <Text fw={700} c="white">
+                            Recordatorio de {sb.type}:
+                          </Text>
+                          <Flex gap="md" justify="flex-start">
+                            <Flex gap={5}>
+                              <Text c="white" fw={700}>
+                                Casilla:
+                              </Text>{' '}
+                              <Text c="white">
+                                {lockerName}
+                                {boxName}
+                              </Text>
+                            </Flex>
+                            <Flex gap={5}>
+                              <Text c="white" fw={700}>
+                                Ubicación:
+                              </Text>{' '}
+                              <Text c="white">{lockerLocation}</Text>
+                            </Flex>
+                          </Flex>
+                        </Flex>
+                        <Title
+                          fw={600}
+                          c={sb.type === 'recogida' ? 'rgba(34, 139, 230)' : 'rgba(231, 175, 46)'}
+                        >
+                          {sb.type === 'recogida'
+                            ? formatTime(sb.checkOutTime)
+                            : formatTime(sb.checkOutTime)}
+                        </Title>
                       </Flex>
-                    </Flex>
-                  </Flex>
-                  <Title
-                    fw={600}
-                    c={n.type === 'recogida' ? 'rgba(34, 139, 230)' : 'rgba(231, 175, 46)'}
+                    </Box>
+                  );
+                })}
+              </Flex>
+            </ScrollArea>
+          </Box>
+        )
+      ) : (
+        //component for mobile and tablet -- needs to be changed
+        <Box bg="transparent" h="50vh" bd="1px solid myPurple.1" style={{ borderRadius: 40 }}>
+          <Center>
+            <h2>Notificaciones</h2>
+          </Center>
+          <Divider size="xs" color="myPurple.1" />
+
+          <ScrollArea p="lg" m="md" h="50vh" scrollbarSize={16}>
+            <Flex direction="column" gap="sm">
+              {bookings.map((sb) => {
+                const lockerName = sb.Object.Box.Locker.name;
+                const boxName = sb.Object.Box.name;
+                const lockerLocation = sb.Object.Box.Locker.location;
+
+                return (
+                  <Box
+                    h="auto"
+                    bg={
+                      sb.type === 'recogida' ? 'rgba(34, 139, 230, .20)' : 'rgba(231, 175, 46, .20)'
+                    }
+                    style={{ borderRadius: 20 }}
+                    p="md"
+                    bd={`1px solid ${sb.type === 'recogida' ? 'rgba(34, 139, 230)' : 'rgba(231, 175, 46)'}`}
                   >
-                    {n.hour}
-                  </Title>
-                </Flex>
-              </Box>
-            );
-          })}
-        </Flex>
-      </ScrollArea>
-    </Box>
+                    <Flex gap="xl" justify="center" align="center">
+                      <Flex gap="sm" direction="column" justify="center">
+                        <Text fw={700} c="white">
+                          Recordatorio de {sb.type}:
+                        </Text>
+                        <Flex gap="md" justify="flex-start">
+                          <Flex gap={5}>
+                            <Text c="white" fw={700}>
+                              Casilla:
+                            </Text>{' '}
+                            <Text c="white">
+                              {lockerName}
+                              {boxName}
+                            </Text>
+                          </Flex>
+                          <Flex gap={5}>
+                            <Text c="white" fw={700}>
+                              Ubicación:
+                            </Text>{' '}
+                            <Text c="white">{lockerLocation}</Text>
+                          </Flex>
+                        </Flex>
+                      </Flex>
+                      <Title
+                        fw={600}
+                        c={sb.type === 'recogida' ? 'rgba(34, 139, 230)' : 'rgba(231, 175, 46)'}
+                      >
+                        {sb.type === 'recogida'
+                          ? formatTime(sb.checkOutTime)
+                          : formatTime(sb.checkOutTime)}
+                      </Title>
+                    </Flex>
+                  </Box>
+                );
+              })}
+            </Flex>
+          </ScrollArea>
+        </Box>
+      )}
+    </>
   );
 }

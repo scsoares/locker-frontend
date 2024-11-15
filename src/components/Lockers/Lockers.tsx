@@ -5,14 +5,8 @@ import './Lockers.module.css';
 
 import { useEffect, useState } from 'react';
 import instance from '@/services/api';
+import { Locker, LockersProps } from '@/types/types';
 import { LockersContext } from './context';
-
-export interface Locker {
-  id: string;
-  description: string;
-  number: number;
-  location: string;
-}
 
 const mockLockers = [
   {
@@ -35,7 +29,7 @@ const mockLockers = [
   },
 ];
 
-export default function Lockers() {
+const Lockers: React.FC<LockersProps> = ({ onLockerClick }) => {
   const [lockers, setLockers] = useState<Locker[]>([]);
 
   useEffect((): any => {
@@ -138,7 +132,13 @@ export default function Lockers() {
                       </svg>
                     </Flex>
                     <Center>
-                      <Button size="md" maw="8vw" bg="myPurple.3" radius="xl">
+                      <Button
+                        onClick={() => onLockerClick(locker)}
+                        size="md"
+                        maw="8vw"
+                        bg="myPurple.3"
+                        radius="xl"
+                      >
                         Ver casillas
                       </Button>
                     </Center>
@@ -151,4 +151,6 @@ export default function Lockers() {
       </Box>
     </LockersContext.Provider>
   );
-}
+};
+
+export default Lockers;

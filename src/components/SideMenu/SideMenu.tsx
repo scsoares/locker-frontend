@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react';
 import { IconLogout, IconMessageReport, IconSettings, IconUser } from '@tabler/icons-react';
-import { Center, Image, rem, Stack, Tooltip, UnstyledButton } from '@mantine/core';
+import { Center, Flex, Image, rem, Stack, Tooltip, UnstyledButton } from '@mantine/core';
 import classes from './SideMenu.module.css';
 
 interface NavbarLinkProps {
@@ -41,7 +41,7 @@ export function SideMenu() {
   return (
     <nav className={classes.navbar}>
       <Center>
-        <Image src="./../../assets/logoApp.png" />
+        <Image w="60px" src="/assets/logoApp.png" />
       </Center>
 
       <div className={classes.navbarMain}>
@@ -50,9 +50,9 @@ export function SideMenu() {
         </Stack>
       </div>
 
-      <Stack justify="center" gap={0}>
+      <Flex direction="column" justify="flex-end" align="flex-end" h="60vh">
         <NavbarLink icon={IconLogout} label="Salir" />
-      </Stack>
+      </Flex>
     </nav>
   );
 }
