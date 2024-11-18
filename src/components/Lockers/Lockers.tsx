@@ -8,45 +8,24 @@ import instance from '@/services/api';
 import { Locker, LockersProps } from '@/types/types';
 import { LockersContext } from './context';
 
-const mockLockers = [
-  {
-    id: '0-01',
-    description: 'A locker',
-    number: 2,
-    location: 'Aula 106',
-  },
-  {
-    id: '0-02',
-    description: 'A locker',
-    number: 2,
-    location: 'Aula 106',
-  },
-  {
-    id: '0-03',
-    description: 'A locker',
-    number: 2,
-    location: 'Aula 106',
-  },
-];
-
 const Lockers: React.FC<LockersProps> = ({ onLockerClick }) => {
   const [lockers, setLockers] = useState<Locker[]>([]);
 
   useEffect((): any => {
-    try {
-      let lockers: any;
-
-      instance.get('/lockers').then((response) => {
-        lockers = response.data;
+    fetch('/assets/lockers.json')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const fetchedLockers: Locker[] = data;
+        setLockers(fetchedLockers); //skipped the sorting function, but there needs to be one.
+      })
+      .catch((error) => {
+        console.error('Error fetching objects:', error);
       });
-
-      setLockers(mockLockers);
-
-      return lockers;
-    } catch (err: any) {
-      console.log(err.message);
-      return null;
-    }
   }, []);
 
   return (
@@ -89,7 +68,7 @@ const Lockers: React.FC<LockersProps> = ({ onLockerClick }) => {
                         <Flex gap="md" justify="flex-start">
                           <Flex gap={5}>
                             <Text c="white" fw={700}>
-                              Casilla:
+                              Ubicación:
                             </Text>{' '}
                             <Text c="white">{locker.location}</Text>
                           </Flex>

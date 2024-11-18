@@ -1,14 +1,13 @@
 ﻿import { IconSearch } from '@tabler/icons-react';
 import { Box, Button, Center, Flex, Input, ScrollArea, Stack, Text, Title } from '@mantine/core';
 
-import './Box.module.css';
+import './Objects.module.css';
 
 import { useEffect, useState } from 'react';
 import instance from '@/services/api';
-import { BoxType } from '@/types/types';
-import { BoxesContext } from './context';
+import { ObjectsContext } from './context';
 
-const mockBoxes = [
+const mockObjects = [
   {
     id: 'C01',
     description: 'A Box',
@@ -35,18 +34,18 @@ const mockBoxes = [
   },
 ];
 
-export default function Boxes() {
+const Objects: React.FC = () => {
   const [boxes, setBoxes] = useState<Box[]>([]);
 
   useEffect((): any => {
     try {
       let boxes: any;
 
-      instance.get('/boxes').then((response) => {
+      instance.get('/objects.json').then((response) => {
         boxes = response.data;
       });
 
-      setBoxes(mockBoxes);
+      setBoxes(mockObjects);
 
       return boxes;
     } catch (err: any) {
@@ -56,7 +55,7 @@ export default function Boxes() {
   }, []);
 
   return (
-    <BoxesContext.Provider value={boxes}>
+    <ObjectsContext.Provider value={boxes}>
       <Box
         bg="myPurple.4"
         px="1vw"
@@ -83,21 +82,21 @@ export default function Boxes() {
         </Stack>
         <ScrollArea p="lg" m="md" h="62vh" scrollbarSize={16}>
           <Flex direction="column" gap="sm">
-            {boxes.map((box) => {
+            {objects.map((obj) => {
               return (
                 <Box h="auto" bg="myPurple.6" style={{ borderRadius: 20 }} p="sm">
                   <Flex direction="column" gap="lg" p="sm">
                     <Flex gap="10vw" justify="center" align="center">
                       <Flex direction="column" gap="1vh" justify="center">
                         <Title size="xl" c="white">
-                          Armario {box.id}
+                          Armario {obj.box_id}
                         </Title>
                         <Flex gap="md" justify="flex-start">
                           <Flex gap={5}>
                             <Text c="white" fw={700}>
                               Casilla:
                             </Text>{' '}
-                            <Text c="white">{box.locker_id}</Text>
+                            <Text c="white">{obj.description}</Text>
                           </Flex>
                         </Flex>
                       </Flex>
@@ -149,6 +148,8 @@ export default function Boxes() {
           </Flex>
         </ScrollArea>
       </Box>
-    </BoxesContext.Provider>
+    </ObjectsContext.Provider>
   );
-}
+};
+
+export default Objects;

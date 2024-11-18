@@ -1,27 +1,28 @@
+// Home.page.tsx
 import { useState } from 'react';
 import { Divider, Flex, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { Banner } from '@/components/Banner/Banner';
-import { Lockers } from '@/components/Lockers/Lockers';
+import Lockers from '@/components/Lockers/Lockers';
 import MobileMenu from '@/components/MobileMenu/MobileMenu';
 import { Notifications } from '@/components/Notifications/Notifications';
 import { Pending } from '@/components/Pending/Pending';
 import { SideMenu } from '@/components/SideMenu/SideMenu';
 import UserBar from '@/components/UserBar/UserBar';
-import { Box, Locker } from '@/types/types'; //we need to write the box type
+import { BoxType, Locker } from '@/types/types';
 
-const HomePage: React.FC = () => {
+const Home: React.FC = () => {
   const theme = useMantineTheme();
   const matches = useMediaQuery('(min-width: 85em)');
   const matches2 = useMediaQuery('(max-width: 93em)');
   const [selectedLocker, setSelectedLocker] = useState<Locker | null>(null);
-  const [selectedBox, setSelectedBox] = useState<Box | null>(null);
+  const [selectedBox, setSelectedBox] = useState<BoxType | null>(null);
 
   const handleLockerClick = (locker: Locker) => {
     setSelectedLocker(locker);
   };
 
-  const handleBoxClick = (box: Box) => {
+  const handleBoxClick = (box: BoxType) => {
     setSelectedBox(box);
   };
 
@@ -51,7 +52,8 @@ const HomePage: React.FC = () => {
                       <Pending />
                     </Flex>
                   </Flex>
-                  <Lockers />
+                  {/* Pass the onLockerClick prop */}
+                  <Lockers onLockerClick={handleLockerClick} />
                 </Flex>
               </Flex>
             </Flex>
@@ -70,7 +72,8 @@ const HomePage: React.FC = () => {
                       <Pending />
                     </Flex>
                   </Flex>
-                  <Lockers />
+                  {/* Pass the onLockerClick prop */}
+                  <Lockers onLockerClick={handleLockerClick} />
                 </Flex>
               </Flex>
             </Flex>
@@ -112,4 +115,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage;
+export default Home;

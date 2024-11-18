@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { Locker } from './Lockers';
+import { Locker } from '@/types/types';
 
 export const LockersContext = React.createContext<Locker[] | undefined>(undefined);
 

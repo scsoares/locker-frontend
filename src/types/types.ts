@@ -6,11 +6,16 @@ export interface Locker {
   location: string;
 }
 
-export interface LockersProps {
-  lockers: Locker[];
-  onLockerClick: (locker: Locker) => void;
+export interface BoxType {
+  id: string;
+  description: string;
+  imgUrl: string;
+  locker_id: string;
 }
 
+export interface LockersProps {
+  onLockerClick: (locker: Locker) => void;
+}
 //for notifications component
 
 export interface Booking {
@@ -33,4 +38,12 @@ export interface Booking {
       };
     };
   };
+}
+
+export interface Object {
+  id: string;
+  description: string;
+  state: string;
+  box_id: string;
+  type_id: string;
 }
